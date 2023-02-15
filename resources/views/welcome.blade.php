@@ -19,11 +19,10 @@
             console.log('hello');
             const socket = io.connect('ws://localhost:3000');
 
-            socket.emit('subscribe', 'test-channel message');
-
             socket.on('testChannel', (data) => {
                 console.log(data);
             });
+
             socket.on('connect', () => {
                 console.log("you are connected");
             });

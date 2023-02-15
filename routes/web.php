@@ -16,17 +16,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    // $data = [
-    //     'event' => 'testEvent',
-    //     'data' => [
-    //         'name' => 'John Doe',
-    //         'Gender' => 'Male'
-    //     ]
-    // ];
 
-    event(new TestEvent());
-
-    // Redis::publish('test-channel', json_encode($data));
+    // event(new TestEvent(fake()->name()));
 
     return view('welcome');
 });

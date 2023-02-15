@@ -1,37 +1,38 @@
 const app = require('express')();
 const server = require('http').createServer(app);
 require('dotenv').config();
-
+const Redis = require('ioredis');
 const redisPort = process.env.REDIS_PORT;
 const redisHost = process.env.REDIS_HOST;
-
-console.log("Redis Host: " + process.env.REDIS_HOST);
-console.log("Redis Port: " + process.env.REDIS_PORT);
-
-const io = require('socket.io')(server, {
-    cors: { origin: '*', methods: ['GET', 'POST'] }
-});
-const Redis = require('ioredis');
 const redis = new Redis(redisPort, redisHost);
 
-redis.subscribe('redis_socket_database_testChannel', () => {
-    console.log('subscribed to: redis_socket_database_testChannel');
+
+// redis subscribes to a laravel channel
+redis.subscribe('testChannel', () => {
+    console.log('subscribed to channel');
+});
+
+// create socket server
+const io = require('socket.io')(server, {
+    cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 
 let users = [];
 
-
 io.on('connection', (socket) => {
     console.log('A client connected');
-    // socket.on('subscribe',(data)=>{
-    //    io.emit("testChannel",data)
-    // })
+    addUserToPool();
+    socket.on('subscribe', (data) => {
+        io.emit("testChannel", data)
+    })
+
+    disconnect();
+
     redis.on('message', (channel, message) => {
 
         //1. find receiver id from user pool
-
         console.log("message received");
-        message  = JSON.parse(message);
+        message = JSON.parse(message);
 
         io.emit('testChannel', message);
         io.to(socket.id).emit()
@@ -41,37 +42,36 @@ io.on('connection', (socket) => {
 
     })
 
-    socket.on('send-message',({rid})=>{
+    socket.on('testChannel', ({ rid }) => {
         //1. remove user from users pool
 
-        const m= users.find()
+        const m = users.find()
         io.to(m.SocketId).emit()
         console.log("user disconnected");
     })
 
 
-    socket.join('room-1', () => {
-
-    });
-
-
-    socket.on('disconnect',()=>{
-        //1. remove user from users pool
-
-        console.log("user disconnected");
-    })
-
-    socket.on('addUser', (userId) => {
-        //1. find user exists in user pool
-
-        //2. return if user exists in users pool
-
-        //3. add user to users pool if doesn't exist
-        users.push({
-            userId : 1, // extract from api request - auth()->id and path it to socket with event
-            socketId : socket.id // from socket
+    // socket functions
+    function disconnect() {
+        socket.on('disconnect', (socket) => {
+            //1. remove user from users pool
+            console.log("User disconnected");
         });
-    });
+    }
+
+    function addUserToPool() {
+        socket.on('addUser', (userId) => {
+            //1. find user exists in user pool
+            //2. return if user exists in users pool
+            //3. add user to users pool if doesn't exist
+            users.push({
+                userId: 1,
+                socketId: socket.id
+            });
+        });
+        console.log("Added user to pool.");
+        console.log(users);
+    }
 });
 
 
@@ -81,6 +81,6 @@ server.listen(broadcastPort, () => {
     console.log("Listening on port:" + broadcastPort);
 });
 
-app.get('/', (req, res)=> {
+app.get('/', (req, res) => {
     return res.json("john");
 })
