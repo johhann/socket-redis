@@ -14,10 +14,11 @@ const io = require('socket.io')(server, {
 const Redis = require('ioredis');
 const redis = new Redis(redisPort, redisHost);
 
-redis.subscribe('redis_socket_database_test-channel', () => {
-    console.log('subscribed to: test-channel');
+redis.subscribe('redis_socket_database_testChannel', () => {
+    console.log('subscribed to: redis_socket_database_testChannel');
 });
 
+let users = [];
 
 
 io.on('connection', (socket) => {
@@ -26,18 +27,51 @@ io.on('connection', (socket) => {
     //    io.emit("testChannel",data)
     // })
     redis.on('message', (channel, message) => {
+
+        //1. find receiver id from user pool
+
         console.log("message received");
         message  = JSON.parse(message);
-        io.emit('testChannel', "message");
 
-        // io.emit(channel + ':' + message.event, message.data);
-        // console.log(channel + ':' + message.event, message.data);
+        io.emit('testChannel', message);
+        io.to(socket.id).emit()
+
+        io.emit(channel + ':' + message.event, message.data);
+        console.log(channel + ':' + message.event, message.data);
 
     })
 
-    socket.on('disconnect',()=>{
+    socket.on('send-message',({rid})=>{
+        //1. remove user from users pool
+
+        const m= users.find()
+        io.to(m.SocketId).emit()
         console.log("user disconnected");
     })
+
+
+    socket.join('room-1', () => {
+
+    });
+
+
+    socket.on('disconnect',()=>{
+        //1. remove user from users pool
+
+        console.log("user disconnected");
+    })
+
+    socket.on('addUser', (userId) => {
+        //1. find user exists in user pool
+
+        //2. return if user exists in users pool
+
+        //3. add user to users pool if doesn't exist
+        users.push({
+            userId : 1, // extract from api request - auth()->id and path it to socket with event
+            socketId : socket.id // from socket
+        });
+    });
 });
 
 
