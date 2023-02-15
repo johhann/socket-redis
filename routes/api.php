@@ -1,6 +1,7 @@
 <?php
 
 use App\Events\SendMessageEvent;
+use App\Events\TestEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,5 +23,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('send-message', function(Request $request){
 
-    event(new SendMessageEvent($request->message));
+    event(new TestEvent([
+        'userId' => 1,
+        'message' => $request->message,
+        'createAt' => now()
+    ]));
+
+    return $request->message;
 });
