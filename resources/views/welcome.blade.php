@@ -39,7 +39,7 @@
             function sendMessage(e){
                 // e.preventDefault();
 
-                socket.emit('sendMessage', 'How are you?');
+                socket.emit('sendMessage', 'Hello');
             }
         </script>
     </body>
