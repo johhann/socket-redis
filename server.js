@@ -9,6 +9,7 @@ const {
     userLeave,
     getRoomUsers
 } = require('./socket/utils/users');
+
 const redisPort = process.env.REDIS_PORT;
 const redisHost = process.env.REDIS_HOST;
 const socketPort = process.env.SOCKET_PORT || 3000;
@@ -21,19 +22,32 @@ const io = require('socket.io')(server, {
 
 // redis subscribes to a laravel channel
 redis.subscribe('testChannel', () => {
-    console.log('subscribed to channel');
+    console.log('Redis subscribed to testChannel');
 });
 
 
+const botName = "Yeabrak";
+
 // Run when client connects
 io.on('connection', socket => {
+    redis.on('message', (channel, message) => {
+        console.log(message)
+        io.emit('message', message)
+    });
+
+    socket.on('sendMessage', (message) => {
+        // send to database
+        console.log(message);
+    })
+
+    // join room
     socket.on('joinRoom', ({ username, room }) => {
         const user = userJoin(socket.id, username, room);
 
-        socket.join(user.room);
-
         // Welcome current user
         socket.emit('message', formatMessage(botName, 'Welcome to ChatCord!'));
+
+        socket.join(user.room);
 
         // Broadcast when a user connects
         socket.broadcast
@@ -76,12 +90,6 @@ io.on('connection', socket => {
     });
 });
 
-
-
 server.listen(socketPort, () => {
     console.log(`Up & Running. Go to: http://localhost:${socketPort}`);
 });
-
-app.get('/', (req, res) => {
-    return res.json("john");
-})
