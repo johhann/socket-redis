@@ -2,7 +2,7 @@ const app = require('express')();
 const server = require('http').createServer(app);
 require('dotenv').config();
 const Redis = require('ioredis');
-const formatMessage = require('./socket/utils/messages');
+const { formatMessage, sendMessage } = require('./socket/utils/messages');
 const {
     userJoin,
     getCurrentUser,
@@ -36,8 +36,7 @@ io.on('connection', socket => {
     });
 
     socket.on('sendMessage', (message) => {
-        // send to database
-        console.log(message);
+        sendMessage(message)
     })
 
     // join room
