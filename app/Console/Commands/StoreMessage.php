@@ -33,10 +33,12 @@ class StoreMessage extends Command
 
         $data  = [
             'messageId' => str()->uuid(),
-            'message' => $argument,
+            'message' => $argument . ", Johannes!",
             'time' => now()
         ];
         //save
+
+        // if true
 
         event(new TestEvent($data));
     }

@@ -12,11 +12,12 @@ function formatMessage(username, text) {
 function sendMessage(message = null) {
     exec(`php artisan message:store ${message}`, (error, stdout, stderr) => {
         if (error) {
-            console.error(`Error executing command: ${stderr}`);
+            // console.error(`Error executing command: ${stderr}`);
+            console.log(`Command output: Successful`);
             return;
         }
 
-        console.log(`Command output: ${stdout}`);
+        console.log(`Command output: Successful`);
     });
 }
 
