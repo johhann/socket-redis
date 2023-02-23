@@ -20,16 +20,16 @@ const io = require('socket.io')(server, {
     cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 
-// redis subscribes to a laravel channel
-redis.subscribe('testChannel', () => {
-    console.log('Redis subscribed to testChannel');
-});
-
 
 const botName = "Yeabrak";
 
 // Run when client connects
 io.on('connection', socket => {
+    // redis subscribes to a laravel channel
+    redis.subscribe('testChannel', (message) => {
+        io.emit('message', message);
+    });
+
     redis.on('message', (channel, message) => {
         console.log(message)
         io.emit('message', message)
